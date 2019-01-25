@@ -806,7 +806,14 @@ namespace pdfpc {
          * them to the presentation controller
          */
         protected bool on_move_pointer(Gtk.Widget source, Gdk.EventMotion move) {
-            pointer_x = move.x/presenter_allocation.width;
+            if (move.x > presenter_allocation.width - 20)
+                pointer_x = presenter_allocation.width + 500;
+            else
+                pointer_x = move.x/presenter_allocation.width;
+
+            if (move.y > presenter_allocation.height - 20)
+                pointer_x = presenter_allocation.width + 500;
+
             pointer_y = move.y/presenter_allocation.height;
             if (presenter != null) {
                 presenter_pointer_surface.queue_draw();
@@ -844,16 +851,30 @@ namespace pdfpc {
             }
             // Draw the pointer when not dragging
             if (drag_x == -1) {
+// luis
                 int x = (int)(a.width*pointer_x);
                 int y = (int)(a.height*pointer_y);
                 int r = (int)(a.height*0.001*pointer_size);
 
-                context.set_source_rgba(pointer_color.red,
-                                        pointer_color.green,
-                                        pointer_color.blue,
-                                        pointer_color.alpha);
+                // context.new_path();
+                // context.set_source_rgba(pointer_color.red,
+                //                         pointer_color.green,
+                //                         pointer_color.blue,
+                //                         pointer_color.alpha);
+                // context.set_source_rgba(1,1,1,1);
+                // context.arc(x, y, r, 0, 2*Math.PI);
+                // context.fill();
+
+                if (pointer_x < presenter_allocation.width + 500) {
+                context.rectangle(0,0,a.width, a.height);
+                context.new_sub_path();
                 context.arc(x, y, r, 0, 2*Math.PI);
-                context.fill();
+                // context.rectangle((int)(highlight_x*a.width), (int)(highlight_y*a.height), (int)(highlight_w*a.width), (int)(highlight_h*a.height));
+                context.set_fill_rule (Cairo.FillRule.EVEN_ODD);
+                context.set_source_rgba(0,0,0,0.5);
+                context.fill_preserve();
+}
+
             }
         }
 
@@ -1389,6 +1410,9 @@ namespace pdfpc {
             if (overview_shown)
                 return;
 
+                pointer_x = presenter_allocation.width + 500;
+                pointer_y = presenter_allocation.height + 500;;
+
             this.timer.start();
             // there is a next slide
             if (this.current_slide_number < this.n_slides - 1) {
@@ -1399,7 +1423,12 @@ namespace pdfpc {
                     this.faded_to_black = false;
                 }
 
+                // queue_pointer_surface_draws();
+
                 this.controllables_update();
+
+
+                // set_mode(AnnotationMode.POINTER);
             } else if (Options.black_on_end && !this.faded_to_black) {
                 this.fade_to_black();
             }
