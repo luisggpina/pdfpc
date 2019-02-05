@@ -1410,8 +1410,15 @@ namespace pdfpc {
             if (overview_shown)
                 return;
 
+            if (pointer_x != presenter_allocation.width + 500) {
                 pointer_x = presenter_allocation.width + 500;
                 pointer_y = presenter_allocation.height + 500;;
+                this.controllables_update();
+                return;
+            } else {
+                pointer_x = presenter_allocation.width + 500;
+                pointer_y = presenter_allocation.height + 500;;
+            }
 
             this.timer.start();
             // there is a next slide
